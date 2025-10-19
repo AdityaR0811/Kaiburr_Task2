@@ -11,7 +11,7 @@
 
 ## 🌟 Project Overview
 
-Kaiburr Task 1 is a production-ready **Secure Task Execution Service** built with Spring Boot 3 and MongoDB. It provides a REST API for managing tasks and executing system commands with comprehensive security validation and audit trails.
+Kaiburr Task 2 is a production-ready **Secure Task Execution Service** built with Spring Boot 3 and MongoDB. It provides a REST API for managing tasks and executing system commands with comprehensive security validation and audit trails.
 
 ### Why This Project Is Unique
 
