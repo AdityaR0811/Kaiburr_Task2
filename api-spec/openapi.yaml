@@ -1,0 +1,495 @@
+openapi: 3.0.3
+info:
+  title: Kaiburr Task 1 API
+  description: |
+    Secure Task Execution Service with MongoDB
+    
+    This API provides endpoints for managing tasks with system commands and executing them safely.
+    All commands are validated against a strict security policy before execution.
+    
+    **Author**: Aditya R.
+    **License**: MIT
+    
+    ## Features
+    - Create, read, update, delete tasks
+    - Execute task commands with strict validation
+    - Search tasks by name (case-insensitive)
+    - Dry-run command validation
+    - Automatic audit logging
+    - Correlation ID tracking
+    
+    ## Security
+    - No shell invocation (direct binary execution)
+    - Allowlist-based binary execution
+    - Denylist for dangerous tokens
+    - Timeout protection (5 seconds)
+    - Output size limits (128 KiB stdout, 64 KiB stderr)
+    
+  version: 1.0.0
+  contact:
+    name: Aditya R.
+    email: aditya@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Tasks
+    description: Task management and execution operations
+  - name: Validation
+    description: Command validation operations (dry-run)
+
+paths:
+  /api/tasks:
+    put:
+      tags:
+        - Tasks
+      summary: Create or update a task
+      description: |
+        Creates a new task or updates an existing one by ID.
+        The command is validated before saving.
+      operationId: upsertTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+            examples:
+              echoTask:
+                summary: Simple echo task
+                value:
+                  id: "task-001"
+                  name: "Echo Hello Task"
+                  owner: "Aditya R."
+                  command: "echo Hello World"
+              dateTask:
+                summary: Date task
+                value:
+                  id: "task-002"
+                  name: "Current Date Task"
+                  owner: "Aditya R."
+                  command: "date"
+      responses:
+        '200':
+          description: Task created or updated successfully
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+              description: Correlation ID for request tracking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          description: Invalid input or command validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    get:
+      tags:
+        - Tasks
+      summary: Get all tasks
+      description: Retrieve all tasks with pagination support
+      operationId: getAllTasks
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPage'
+
+  /api/tasks/{id}:
+    get:
+      tags:
+        - Tasks
+      summary: Get task by ID
+      description: Retrieve a specific task by its ID
+      operationId: getTaskById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task found
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Tasks
+      summary: Delete task
+      description: Delete a task by its ID
+      operationId: deleteTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Task deleted successfully
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tasks/search:
+    get:
+      tags:
+        - Tasks
+      summary: Search tasks by name
+      description: Search for tasks whose name contains the given substring (case-insensitive)
+      operationId: searchTasks
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Name substring to search for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks found
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: No tasks found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tasks/{id}/executions:
+    put:
+      tags:
+        - Tasks
+      summary: Execute task command
+      description: |
+        Execute the command associated with a task and record the execution.
+        The command is executed with strict security controls:
+        - 5-second timeout
+        - Output truncation at 128 KiB (stdout) and 64 KiB (stderr)
+        - No shell invocation
+      operationId: executeTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Command executed successfully
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskExecutionResponse'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Command execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/validation/command:
+    post:
+      tags:
+        - Validation
+      summary: Validate command (dry-run)
+      description: |
+        Validate a command without executing it.
+        Returns validation result and any violations.
+        Useful for testing command syntax before creating a task.
+      operationId: validateCommand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandValidationRequest'
+            examples:
+              validCommand:
+                summary: Valid command
+                value:
+                  command: "echo test"
+              invalidCommand:
+                summary: Invalid command with denied token
+                value:
+                  command: "rm -rf /"
+      responses:
+        '200':
+          description: Validation completed
+          headers:
+            X-Correlation-Id:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandValidationResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TaskRequest:
+      type: object
+      required:
+        - id
+        - name
+        - owner
+        - command
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Unique task identifier (client-supplied)
+          example: "task-001"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task name (used for searching)
+          example: "Echo Hello Task"
+        owner:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Task owner/creator
+          example: "Aditya R."
+        command:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: System command to execute (validated against security policy)
+          example: "echo Hello World"
+
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "task-001"
+        name:
+          type: string
+          example: "Echo Hello Task"
+        owner:
+          type: string
+          example: "Aditya R."
+        command:
+          type: string
+          example: "echo Hello World"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-10-18T10:30:45.123Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-10-18T10:30:45.123Z"
+        taskExecutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskExecutionResponse'
+        version:
+          type: integer
+          format: int64
+          description: Optimistic locking version
+          example: 1
+
+    TaskExecutionResponse:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: "2025-10-18T10:31:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2025-10-18T10:31:00.142Z"
+        durationMs:
+          type: integer
+          format: int64
+          description: Execution duration in milliseconds
+          example: 142
+        exitCode:
+          type: integer
+          description: Process exit code (0 = success)
+          example: 0
+        stdout:
+          type: string
+          description: Standard output (truncated at 128 KiB)
+          example: "Hello World\n"
+        stderr:
+          type: string
+          description: Standard error (truncated at 64 KiB)
+          example: ""
+        correlationId:
+          type: string
+          description: Correlation ID for request tracking
+          example: "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6"
+
+    CommandValidationRequest:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: Command to validate
+          example: "echo test"
+
+    CommandValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: Whether the command passed validation
+          example: true
+        command:
+          type: string
+          description: The validated command
+          example: "echo test"
+        violations:
+          type: array
+          items:
+            type: string
+          description: List of validation violations (empty if valid)
+          example: []
+        message:
+          type: string
+          description: Validation result message
+          example: "Command is valid"
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-10-18T10:30:45.123Z"
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        error:
+          type: string
+          description: HTTP status text
+          example: "Bad Request"
+        message:
+          type: string
+          description: Error message
+          example: "Command validation failed: Binary 'rm' is not in allowlist"
+        path:
+          type: string
+          description: Request path that caused the error
+          example: "/api/tasks"
+        correlationId:
+          type: string
+          description: Correlation ID for tracking
+          example: "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6"
+
+    TaskPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskResponse'
+        pageable:
+          type: object
+          properties:
+            pageNumber:
+              type: integer
+            pageSize:
+              type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        last:
+          type: boolean
+        first:
+          type: boolean
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication (to be implemented in Task 4)
+
+security:
+  - {}  # No authentication required in Task 1

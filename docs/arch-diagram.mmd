@@ -1,0 +1,99 @@
+graph TB
+    subgraph "External"
+        Client[REST Client<br/>Postman / Browser]
+        Swagger[Swagger UI]
+    end
+    
+    subgraph "Application Layer"
+        Filter[Correlation ID Filter<br/>Generate/Track IDs]
+        Controller[Task Controller<br/>REST Endpoints]
+        ValController[Validation Controller<br/>Dry-run Endpoint]
+        ExHandler[Global Exception Handler<br/>Error Responses]
+    end
+    
+    subgraph "Business Logic Layer"
+        Service[Task Service<br/>CRUD + Execute]
+        Validator[Command Validator<br/>Policy Enforcement]
+        RunnerIface[CommandRunner Interface]
+    end
+    
+    subgraph "Execution Layer"
+        LocalRunner[Local Command Runner<br/>ProcessBuilder]
+        K8sRunner[Kubernetes Runner<br/>STUB - 501]
+        SafeIO[Safe Process I/O<br/>Timeout + Truncation]
+    end
+    
+    subgraph "Data Layer"
+        Repo[Task Repository<br/>Spring Data MongoDB]
+        Mongo[(MongoDB<br/>Tasks + Executions)]
+    end
+    
+    subgraph "Configuration"
+        Policy[command-policy.yaml<br/>Security Rules]
+        AppConfig[application.yml<br/>App Settings]
+    end
+    
+    subgraph "Observability"
+        Audit[audit.log.jsonl<br/>Execution Trail]
+        Actuator[Actuator Endpoints<br/>Health / Metrics]
+        Prometheus[Prometheus Metrics]
+    end
+    
+    %% Client interactions
+    Client -->|HTTP Request| Filter
+    Client -->|Browse API| Swagger
+    Swagger -->|Generate Docs| Controller
+    
+    %% Request flow
+    Filter -->|Add Correlation ID| Controller
+    Filter -->|Add Correlation ID| ValController
+    Controller -->|Delegate| Service
+    ValController -->|Validate| Service
+    Controller -.->|On Error| ExHandler
+    ValController -.->|On Error| ExHandler
+    
+    %% Business logic
+    Service -->|Validate Command| Validator
+    Service -->|Execute| RunnerIface
+    Service -->|CRUD Operations| Repo
+    Service -->|Write Audit| Audit
+    
+    %% Validation
+    Validator -->|Load Policy| Policy
+    
+    %% Execution
+    RunnerIface -->|@Primary| LocalRunner
+    RunnerIface -.->|@Profile k8s| K8sRunner
+    LocalRunner -->|Safe Execution| SafeIO
+    SafeIO -->|Timeout<br/>Truncate| LocalRunner
+    
+    %% Data persistence
+    Repo -->|Query/Save| Mongo
+    
+    %% Configuration
+    Service -.->|Read Config| AppConfig
+    Validator -.->|Load| Policy
+    
+    %% Observability
+    Service -->|Log Execution| Audit
+    Actuator -->|Expose| Prometheus
+    Controller -->|Metrics| Actuator
+    
+    %% Styling
+    classDef external fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef controller fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef runner fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef data fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef config fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef observability fill:#e0f2f1,stroke:#004d40,stroke-width:2px
+    classDef stub stroke-dasharray: 5 5,fill:#ffebee,stroke:#c62828
+    
+    class Client,Swagger external
+    class Filter,Controller,ValController,ExHandler controller
+    class Service,Validator,RunnerIface service
+    class LocalRunner,SafeIO runner
+    class K8sRunner stub
+    class Repo,Mongo data
+    class Policy,AppConfig config
+    class Audit,Actuator,Prometheus observability

@@ -1,0 +1,82 @@
+# Command Security Policy Configuration
+# Author: Aditya R.
+# This file is loaded at startup and can be hot-reloaded
+
+limits:
+  maxCommandLength: 200
+  maxArgs: 8
+  timeoutSeconds: 5
+  maxStdoutBytes: 131072  # 128 KiB
+  maxStderrBytes: 65536   # 64 KiB
+
+allowlist:
+  binaries:
+    - echo
+    - date
+    - uname
+    - whoami
+    - id
+    - uptime
+    - printenv
+    - hostname
+    - pwd
+
+denylist:
+  tokens:
+    - rm
+    - sudo
+    - reboot
+    - shutdown
+    - halt
+    - kill
+    - pkill
+    - nc
+    - ncat
+    - curl
+    - wget
+    - scp
+    - ssh
+    - iptables
+    - systemctl
+    - service
+    - mkfs
+    - dd
+    - chown
+    - chmod
+    - netcat
+    - telnet
+    - ftp
+    - sftp
+  
+  metacharacters:
+    - "`"
+    - "$"
+    - ";"
+    - "|"
+    - "&"
+    - ">"
+    - "<"
+    - "("
+    - ")"
+    - "{"
+    - "}"
+    - "["
+    - "]"
+    - "*"
+    - "?"
+    - "!"
+    - "~"
+    - "\""
+    - "'"
+    - "\\"
+  
+  sequences:
+    - "&&"
+    - "||"
+    - "../"
+
+validation:
+  allowedArgCharacters: "A-Za-z0-9._:/=-"
+  rejectQuotes: true
+  rejectNewlines: true
+  rejectEscapes: true

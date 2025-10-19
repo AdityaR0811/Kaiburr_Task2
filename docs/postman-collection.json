@@ -1,0 +1,576 @@
+{
+  "info": {
+    "name": "Kaiburr Task 1 API",
+    "description": "Secure Task Execution Service - Complete API Collection\n\nAuthor: Aditya R.\nVersion: 1.0.0\nLicense: MIT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "correlation_id",
+      "value": "{{$randomUUID}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task - Echo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-echo\",\n  \"name\": \"Echo Hello Task\",\n  \"owner\": \"Aditya R.\",\n  \"command\": \"echo Hello from Kaiburr\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Create a task that echoes a message"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - System Info",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-uname\",\n  \"name\": \"System Info Task\",\n  \"owner\": \"Aditya R.\",\n  \"command\": \"uname -a\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Create a task that shows system information"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Date",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-date\",\n  \"name\": \"Current Date Task\",\n  \"owner\": \"Aditya R.\",\n  \"command\": \"date\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Create a task that shows current date/time"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Whoami",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-whoami\",\n  \"name\": \"Current User Task\",\n  \"owner\": \"Aditya R.\",\n  \"command\": \"whoami\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Create a task that shows current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Page number (0-indexed)"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "Page size"
+                }
+              ]
+            },
+            "description": "Get all tasks with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/task-echo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "task-echo"]
+            },
+            "description": "Get a specific task by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Tasks by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/search?name=Task",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "search"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "Task",
+                  "description": "Name substring to search for (case-insensitive)"
+                }
+              ]
+            },
+            "description": "Search tasks by name (case-insensitive contains)"
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/task-echo/executions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "task-echo", "executions"]
+            },
+            "description": "Execute a task's command and record the execution"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/task-date",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "task-date"]
+            },
+            "description": "Delete a task by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Validation",
+      "item": [
+        {
+          "name": "Validate Command - Valid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"echo test\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/validation/command",
+              "host": ["{{base_url}}"],
+              "path": ["api", "validation", "command"]
+            },
+            "description": "Validate a valid command (dry-run)"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Command - Invalid (rm)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"rm -rf /\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/validation/command",
+              "host": ["{{base_url}}"],
+              "path": ["api", "validation", "command"]
+            },
+            "description": "Validate an invalid command with denied token"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Command - Invalid (pipe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"echo hello | grep h\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/validation/command",
+              "host": ["{{base_url}}"],
+              "path": ["api", "validation", "command"]
+            },
+            "description": "Validate an invalid command with pipe metacharacter"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Command - Invalid (sudo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"sudo whoami\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/validation/command",
+              "host": ["{{base_url}}"],
+              "path": ["api", "validation", "command"]
+            },
+            "description": "Validate an invalid command with sudo"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Create Task - Invalid Command",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-evil\",\n  \"name\": \"Malicious Task\",\n  \"owner\": \"Hacker\",\n  \"command\": \"rm -rf /\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Attempt to create task with malicious command (should fail)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Missing Fields",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"task-incomplete\",\n  \"name\": \"Incomplete Task\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Attempt to create task with missing required fields (should fail)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Non-Existent Task",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/nonexistent",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "nonexistent"]
+            },
+            "description": "Attempt to get non-existent task (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Non-Existent Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/nonexistent/executions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "nonexistent", "executions"]
+            },
+            "description": "Attempt to execute non-existent task (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Search - No Results",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/search?name=NonExistentTask",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", "search"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "NonExistentTask"
+                }
+              ]
+            },
+            "description": "Search with no matching tasks (should return 404)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Actuator",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/health",
+              "host": ["{{base_url}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Check application health status"
+          },
+          "response": []
+        },
+        {
+          "name": "Application Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/info",
+              "host": ["{{base_url}}"],
+              "path": ["actuator", "info"]
+            },
+            "description": "Get application build information"
+          },
+          "response": []
+        },
+        {
+          "name": "Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["actuator", "metrics"]
+            },
+            "description": "Get available metrics"
+          },
+          "response": []
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actuator/prometheus",
+              "host": ["{{base_url}}"],
+              "path": ["actuator", "prometheus"]
+            },
+            "description": "Get Prometheus-formatted metrics"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Log author and timestamp for screenshots",
+          "console.log('='.repeat(50));",
+          "console.log('Author: Aditya R.');",
+          "console.log('Timestamp: ' + new Date().toLocaleString());",
+          "console.log('Correlation ID: ' + pm.variables.get('correlation_id'));",
+          "console.log('='.repeat(50));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Log response details",
+          "console.log('Response Status: ' + pm.response.code);",
+          "console.log('Response Time: ' + pm.response.responseTime + 'ms');",
+          "",
+          "// Check for correlation ID header",
+          "if (pm.response.headers.has('X-Correlation-Id')) {",
+          "    console.log('Correlation ID: ' + pm.response.headers.get('X-Correlation-Id'));",
+          "}"
+        ]
+      }
+    }
+  ]
+}
