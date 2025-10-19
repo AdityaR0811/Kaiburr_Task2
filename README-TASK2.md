@@ -584,4 +584,4 @@ MIT License - See [LICENSE](LICENSE) file.
 
 ---
 
-**Built with ❤️ by Aditya R for Kaiburr Assessment 2025**
+**Built by Aditya R for Kaiburr Assessment 2025**
