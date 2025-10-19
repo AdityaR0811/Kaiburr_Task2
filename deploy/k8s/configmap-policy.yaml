@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kaiburr-policy
+  namespace: kaiburr
+  labels:
+    app: kaiburr-task2
+    component: policy
+data:
+  command-policy.yaml: |
+    # Kaiburr Task 2 — Command Validation Policy
+    # Author: Aditya R
+    
+    denylist:
+      # Dangerous commands that can destroy systems or exfiltrate data
+      commands:
+        - rm
+        - sudo
+        - su
+        - reboot
+        - shutdown
+        - halt
+        - poweroff
+        - kill
+        - pkill
+        - killall
+        - nc
+        - ncat
+        - netcat
+        - curl
+        - wget
+        - scp
+        - ssh
+        - sftp
+        - ftp
+        - telnet
+        - iptables
+        - ip6tables
+        - systemctl
+        - service
+        - mkfs
+        - dd
+        - chown
+        - chmod
+        - chgrp
+        - mount
+        - umount
+        - fdisk
+        - parted
+        - useradd
+        - userdel
+        - groupadd
+        - passwd
+        - docker
+        - kubectl
+        - crictl
+        - podman
+        - runc
+      
+      # Shell metacharacters that enable injection
+      metacharacters:
+        - ";"
+        - "|"
+        - "&"
+        - ">"
+        - "<"
+        - "`"
+        - "$"
+        - "("
+        - ")"
+        - "{"
+        - "}"
+        - "["
+        - "]"
+        - "*"
+        - "?"
+        - "!"
+        - "~"
+        - "\""
+        - "'"
+        - "\\"
+        - "\n"
+        - "\r"
+        - "\t"
+      
+      # Multi-character sequences
+      sequences:
+        - "&&"
+        - "||"
+        - "../"
+        - ".."
+        - "~/"
+        - "//"
+    
+    allowlist:
+      # Only these binaries are permitted (must exist in executor image)
+      binaries:
+        - echo
+        - date
+        - uname
+        - whoami
+        - id
+        - uptime
+        - printenv
+        - env
+        - pwd
+        - hostname
+    
+    limits:
+      maxArgs: 8
+      maxTotalLength: 200
+      # Arguments must be alphanumeric, dots, underscores, colons, slashes, equals, or hyphens
+      argumentPattern: "^[A-Za-z0-9._:/=-]{1,64}$"
+    
+    timeouts:
+      apiClientSeconds: 30
+      jobActiveDeadlineSeconds: 15
+    
+    output:
+      maxStdoutBytes: 131072   # 128 KiB
+      maxStderrBytes: 65536    # 64 KiB
+      truncationMarker: "⟂TRUNCATED"

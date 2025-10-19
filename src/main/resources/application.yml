@@ -1,6 +1,9 @@
 spring:
   application:
-    name: kaiburr-task1
+    name: kaiburr-task2
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:k8s}
   
   data:
     mongodb:
@@ -11,25 +14,26 @@ spring:
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
-  
-  servlet:
-    multipart:
-      enabled: false
 
 server:
   port: ${SERVER_PORT:8080}
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: never
-    include-exception: false
+  shutdown: graceful
+  
+logging:
+  level:
+    root: INFO
+    dev.adityar.kaiburr: DEBUG
+    io.kubernetes.client: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{correlationId}] - %msg%n"
+  file:
+    name: logs/kaiburr-task2.log
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-      base-path: /actuator
   endpoint:
     health:
       show-details: always
@@ -37,17 +41,35 @@ management:
     export:
       prometheus:
         enabled: true
+    tags:
+      application: ${spring.application.name}
 
+# Kubernetes configuration
+k8s:
+  namespace: ${K8S_NAMESPACE:kaiburr}
+  executor:
+    image: ${K8S_EXECUTOR_IMAGE:kaiburr-executor:dev}
+  ttl:
+    seconds: ${K8S_TTL_SECONDS:120}
+  active-deadline:
+    seconds: ${K8S_ACTIVE_DEADLINE_SECONDS:15}
+  backoff-limit: ${K8S_BACKOFF_LIMIT:0}
+  pull-policy: ${K8S_PULL_POLICY:IfNotPresent}
+  max-stdout-bytes: ${K8S_MAX_STDOUT_BYTES:131072}
+  max-stderr-bytes: ${K8S_MAX_STDERR_BYTES:65536}
+
+# Execution configuration
+exec:
+  async: ${EXEC_ASYNC:false}
+
+# SpringDoc OpenAPI
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
-    operationsSorter: method
-
-logging:
-  level:
-    dev.adityar.kaiburr: INFO
+    tags-sorter: alpha
+    operations-sorter: alpha
     org.springframework.data.mongodb: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

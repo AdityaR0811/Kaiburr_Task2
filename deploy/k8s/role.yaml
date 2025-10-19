@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kaiburr-job-manager
+  namespace: kaiburr
+  labels:
+    app: kaiburr-task2
+rules:
+  # Job management
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "get", "list", "watch", "delete"]
+  
+  # Pod reading for log fetching
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  
+  # Pod log access
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]

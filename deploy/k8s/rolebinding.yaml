@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kaiburr-runner-binding
+  namespace: kaiburr
+  labels:
+    app: kaiburr-task2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kaiburr-job-manager
+subjects:
+  - kind: ServiceAccount
+    name: kaiburr-runner
+    namespace: kaiburr
