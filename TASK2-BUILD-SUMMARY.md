@@ -284,29 +284,37 @@ All screenshots include **system date/time** and **"Aditya R"** watermark:
 
 ## 📦 Files Created (70+)
 
-**Java Sources (18):**
-- Application, 2 Domain, 6 DTOs, 1 Repository, 5 Services, 3 Controllers, 4 Configs
+**Java Sources (25):**
+- KaiburrTask2Application, Task, TaskExecution (domain)
+- TaskRequest, TaskResponse, TaskExecutionResponse, CommandValidationRequest, CommandValidationResponse, ErrorResponse (DTOs)
+- TaskRepository
+- CommandRunner (interface), LocalCommandRunner, KubernetesCommandRunner
+- CommandValidator, TaskService
+- TaskController, ValidationController, GlobalExceptionHandler
+- KubernetesClientConfig, CorrelationIdFilter, CorsConfig, OpenApiConfig
 
-**Resources (3):**
-- application.yml, command-policy.yaml, banner.txt
+**Resources (4):**
+- application.yml, command-policy.yaml, banner.txt, logback-spring.xml
 
 **Kubernetes (7):**
-- namespace, SA, role, rolebinding, netpol, configmap, job-template
+- namespace, serviceaccount, role, rolebinding, networkpolicy, configmap, job-template
 
-**Executor (2):**
-- Dockerfile, allowed-binaries.md
+**Executor (3):**
+- Dockerfile, allowed-binaries.md, README.md
 
-**Scripts (3):**
-- dev-bootstrap-kind.sh, build-and-load-executor.sh, demo-commands.sh
+**Scripts (4):**
+- dev-bootstrap-kind.sh, build-and-load-executor.sh, demo-commands.sh, run-task2.ps1
 
-**Documentation (6):**
-- README-TASK2.md, 3 ADRs, threat-model.md, job-template.md
+**Documentation (8):**
+- README-TASK2.md, TASK2-BUILD-SUMMARY.md, HOW-TO-RUN.md, RUN-CHECK-TASK2.md, SETUP-COMPLETE.md, INSTALL-KIND.md
+- adr/0003-k8s-job-runner.md, adr/0004-policy-as-data.md, adr/0005-async-execution.md
+- docs/threat-model.md, deploy/k8s/job-template.md, executor/docs/allowed-binaries.md
 
 **CI/CD (1):**
 - .github/workflows/ci.yml
 
 **Build (1):**
-- pom-task2.xml
+- pom.xml (Task 2 configuration)
 
 ---
 

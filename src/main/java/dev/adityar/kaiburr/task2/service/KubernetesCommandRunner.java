@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Kubernetes Job-based command runner for production.
@@ -147,7 +146,7 @@ public class KubernetesCommandRunner implements CommandRunner {
                 )))
             .spec(new V1JobSpec()
                 .ttlSecondsAfterFinished(ttlSeconds)
-                .activeDeadlineSeconds((long) activeDeadlineSeconds)
+                .activeDeadlineSeconds((long) activeDeadlineSeconds)  // Cast to Long
                 .backoffLimit(backoffLimit)
                 .template(new V1PodTemplateSpec()
                     .metadata(new V1ObjectMeta()
@@ -233,8 +232,20 @@ public class KubernetesCommandRunner implements CommandRunner {
         // Extract execUuid from job name (format: exec-{taskId}-{uuid})
         String labelSelector = "app=kaiburr-exec";
         
-        V1PodList pods = coreApi.listNamespacedPod(namespace, null, null, null, null,
-            labelSelector, null, null, null, null, null, null);
+        V1PodList pods = coreApi.listNamespacedPod(
+            namespace,
+            null,  // pretty
+            null,  // allowWatchBookmarks
+            null,  // continue
+            null,  // fieldSelector
+            labelSelector,  // labelSelector
+            null,  // limit
+            null,  // resourceVersion
+            null,  // resourceVersionMatch
+            null,  // sendInitialEvents
+            null,  // timeoutSeconds
+            null   // watch
+        );
         
         // Find pod with matching job name prefix
         return pods.getItems().stream()

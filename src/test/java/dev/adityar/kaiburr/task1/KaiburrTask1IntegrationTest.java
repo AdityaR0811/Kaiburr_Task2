@@ -19,8 +19,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

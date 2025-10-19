@@ -116,7 +116,6 @@ public class LocalCommandRunner implements CommandRunner {
                 .build();
                 
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
             log.error("Command execution failed", e);
             throw new CommandExecutionException("Local execution failed: " + e.getMessage(), e);
         }
