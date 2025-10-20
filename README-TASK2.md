@@ -407,7 +407,6 @@ All screenshots include system date/time and "Aditya R" watermark.
 8. **Timeout**: Execution exceeding `activeDeadlineSeconds`
 9. **MongoDB record**: `db.tasks.findOne({"executions.0": {$exists: true}})`
 
-See `scripts/make-screenshot-overlay.md` for watermark instructions.
 
 ---
 
